@@ -6,3 +6,15 @@ pandas
 
 # Numerical operations
 numpy
+
+# Plotting library
+matplotlib
+
+# Scientific computing for peak detection
+scipy
+
+# Technical analysis indicators
+ta
+
+# Machine learning tools
+scikit-learn
