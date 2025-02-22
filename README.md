@@ -36,7 +36,7 @@ This repository includes scripts for:
 ## 📁 Repository Structure
 
 - `/support-resistance`: Scripts for identifying support and resistance levels
-- `/rsi-scanners`: RSI analysis tools
+- `/scanners`: RSI analysis tools
 - `/price-prediction`: Machine learning models for price forecasting
 - `/trend-analysis`: Scripts for analyzing market trends
 
