@@ -1,0 +1,8 @@
+# Cryptocurrency exchange API wrapper
+ccxt
+
+# Data manipulation and analysis
+pandas
+
+# Numerical operations
+numpy
