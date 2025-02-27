@@ -8,7 +8,7 @@ ROOT_DIR = Path(__file__).parent
 # Define the folder structure
 FOLDERS = {
     "1": {"name": "support-resistance", "desc": "Scripts for identifying support and resistance levels"},
-    "2": {"name": "scanners", "desc": "RSI analysis tools"},
+    "2": {"name": "scanners", "desc": "Various Scanner Tools"},
     "3": {"name": "price-prediction", "desc": "Machine learning models for price forecasting"},
     "4": {"name": "trend-analysis", "desc": "Scripts for analyzing market trends"},
 }

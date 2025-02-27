@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).parent
 FOLDERS = {
     "Support-Resistance": {"path": "support-resistance", "desc": "Scripts for identifying support and resistance levels"},
-    "Scanners": {"path": "scanners", "desc": "RSI analysis tools"},
+    "Scanners": {"path": "scanners", "desc": "Scanner Analysis tools"},
     "Price-Prediction": {"path": "price-prediction", "desc": "Machine learning models for price forecasting"},
     "Trend-Analysis": {"path": "trend-analysis", "desc": "Scripts for analyzing market trends"},
 }
