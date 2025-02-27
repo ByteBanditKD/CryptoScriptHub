@@ -20,4 +20,7 @@ ta
 scikit-learn
 
 # HTTP requests library
-requests>=2.28.0
+requests
+
+# 
+tdqm
