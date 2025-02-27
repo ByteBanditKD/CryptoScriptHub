@@ -27,3 +27,6 @@ tqdm
 
 # Machine learning framework for LSTM model
 tensorflow
+
+# 
+websocket-client

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>Binance Forced Liquidation Tracker</title>
+    <link rel="icon" href="data:,">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 2.5rem;
+            color: #4a90e2;
+        }
+
+        p {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 1rem;
+            color: #555;
+        }
+
+        #filterForm {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            background: #fff;
+            padding: 15px 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #filterForm div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 150px;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="checkbox"] {
+            font-size: 1rem;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.2);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            margin: 20px 0;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        thead {
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        tbody tr:hover {
+            background-color: #e3f2fd;
+        }
+
+        tbody td {
+            font-size: 0.9rem;
+        }
+
+        a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Styling for Short and Long liquidations */
+        .short-row {
+            background-color: rgba(255, 0, 0, 0.3); /* Vivid red */
+        }
+
+        .long-row {
+            background-color: rgba(0, 255, 0, 0.3); /* Vivid green */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Binance Forced Liquidation Tracker</h1>
+    <p>Data is automatically loaded in real-time.<br><a href="https://github.com/ByteBanditKD/CryptoScriptHub" target="_blank">https://github.com/ByteBanditKD/CryptoScriptHub</a></p>
+
+    <div id="filterForm">
+        <div>
+            <label for="totalThreshold">Minimum Total($):</label>
+            <input type="number" id="totalThreshold" min="0" placeholder="0">
+        </div>
+        <div>
+            <label for="setTicker">Set Ticker:</label>
+            <input type="text" id="setTicker" placeholder="BTCUSDT, ETHUSDT">
+        </div>
+        <div>
+            <label for="minRenderThreshold">Render Only Above($):</label>
+            <input type="number" id="minRenderThreshold" min="0" placeholder="5000">
+        </div>
+        <div>
+            <label for="beepNotification">Beep for Liquidations Above($):</label>
+            <input type="number" id="beepNotificationThreshold" min="0" placeholder="Enter Amount">
+        </div>
+        <div>
+            <label for="enableNotification">Enable Notification:</label>
+            <input type="checkbox" id="enableNotification">
+        </div>
+    </div>
+
+    <table id="liquidations-table">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total($)</th>
+                <th>Liquidation</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="liquidations"></tbody>
+    </table>
+
+    <script>
+        const socket = new WebSocket("wss://fstream.binance.com/ws/!forceOrder@arr");
+        let forceLiquidations = [];
+        let totalThreshold = undefined;
+        let setTicker = undefined;
+        let minRenderThreshold = 100; // Default value
+        let beepNotificationThreshold = undefined; // User-defined beep threshold
+        let notificationEnabled = false; // Notification toggle
+
+        const liquidationsTable = document.getElementById("liquidations");
+        const totalThresholdInput = document.getElementById("totalThreshold");
+        const setTickerInput = document.getElementById("setTicker");
+        const minRenderThresholdInput = document.getElementById("minRenderThreshold");
+        const beepNotificationThresholdInput = document.getElementById("beepNotificationThreshold");
+        const enableNotificationCheckbox = document.getElementById("enableNotification");
+
+        const beepAudio = new Audio("https://actions.google.com/sounds/v1/cartoon/clown_horn.ogg");
+
+        enableNotificationCheckbox.addEventListener("click", () => {
+            if (enableNotificationCheckbox.checked) {
+                beepAudio.play().catch(() => console.log("Audio initialized and ready."));
+            }
+        });
+
+        totalThresholdInput.addEventListener("input", () => {
+            totalThreshold = totalThresholdInput.value !== "" ? parseFloat(totalThresholdInput.value) : undefined;
+            filterAndRenderData();
+        });
+
+        setTickerInput.addEventListener("input", () => {
+            setTicker = setTickerInput.value !== "" ? setTickerInput.value.split(",").map(ticker => ticker.trim()) : undefined;
+            filterAndRenderData();
+        });
+
+        minRenderThresholdInput.addEventListener("input", () => {
+            minRenderThreshold = minRenderThresholdInput.value !== "" ? parseFloat(minRenderThresholdInput.value) : 5000;
+            filterAndRenderData();
+        });
+
+        beepNotificationThresholdInput.addEventListener("input", () => {
+            beepNotificationThreshold = beepNotificationThresholdInput.value !== "" ? parseFloat(beepNotificationThresholdInput.value) : undefined;
+        });
+
+        enableNotificationCheckbox.addEventListener("change", () => {
+            notificationEnabled = enableNotificationCheckbox.checked;
+        });
+
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            const liquidation = data.o;
+            const total = Math.floor(liquidation.p * liquidation.q);
+
+            if (
+                notificationEnabled &&
+                beepNotificationThreshold !== undefined &&
+                total >= beepNotificationThreshold
+            ) {
+                beepAudio.play().catch(error => console.error("Audio playback error:", error));
+            }
+
+            if (total >= minRenderThreshold) {
+                forceLiquidations.unshift(liquidation);
+                if (forceLiquidations.length > 30) {
+                    forceLiquidations.pop();
+                }
+                filterAndRenderData();
+            }
+        };
+
+        function renderData(liquidations) {
+            const liquidationsHtml = liquidations
+                .map(liquidation => {
+                    const timestamp = new Date(liquidation.T);
+                    const total = Math.floor(liquidation.p * liquidation.q);
+                    const liquidationType = liquidation.S === "BUY" ? "Short" : "Long";
+
+                    // Assign the correct class for styling
+                    const rowClass = liquidationType === "Short" ? "short-row" : "long-row";
+
+                    return `<tr class="${rowClass}">
+                        <td><a href="https://www.binance.com/en/futures/${liquidation.s}" target="_blank">${liquidation.s}</a></td>
+                        <td>${liquidation.p}</td>
+                        <td>${liquidation.q}</td>
+                        <td>${total}</td>
+                        <td>${liquidationType}</td>
+                        <td>${timestamp.toLocaleString()}</td>
+                    </tr>`;
+                })
+                .join("");
+            liquidationsTable.innerHTML = liquidationsHtml;
+        }
+
+        function filterAndRenderData() {
+            const filteredLiquidations = forceLiquidations.filter(liquidation =>
+                (totalThreshold === undefined || Math.floor(liquidation.p * liquidation.q) >= totalThreshold) &&
+                (setTicker === undefined || setTicker.includes(liquidation.s))
+            );
+            renderData(filteredLiquidations);
+        }
+    </script>
+</body>
+
+</html>
