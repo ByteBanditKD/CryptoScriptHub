@@ -7,7 +7,7 @@ Welcome to CryptoScriptHub, a comprehensive collection of cryptocurrency analysi
 This repository includes scripts for:
 
 - Support and Resistance Scanners
-- RSI (Relative Strength Index) Scanners
+- Various Crypto Scanners
 - Price Prediction Models
 - Trend Analysis Tools
 
@@ -53,5 +53,10 @@ Refer to individual script documentation for specific usage instructions.
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/ByteBanditKD/CryptoScriptHub/issues).
+
+
+## DISCLAIMER
+
+These scripts are educational examples only. They are not intended for use in live trading without extensive testing, validation, and professional review. Price predictions, where applicable, are based on historical data and machine learning models, which do not guarantee future results. Use at your own risk and do not rely on these scripts for real financial decisions.
 
 

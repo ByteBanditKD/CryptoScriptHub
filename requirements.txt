@@ -22,5 +22,8 @@ scikit-learn
 # HTTP requests library
 requests
 
-# 
-tdqm
+# Progress bar for predictions
+tqdm
+
+# Machine learning framework for LSTM model
+tensorflow
