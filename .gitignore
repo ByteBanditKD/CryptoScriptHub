@@ -5,3 +5,6 @@ output.txt
 /test/
 pairs.csv
 /img/
+/autogluon-m4-hourly/
+/autogluon-m4-daily/
+/autogluon-m4-daily-nvda/

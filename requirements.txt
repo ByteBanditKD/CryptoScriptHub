@@ -30,3 +30,6 @@ tensorflow
 
 # 
 websocket-client
+
+#
+autogluon
