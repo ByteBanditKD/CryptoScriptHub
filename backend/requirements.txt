@@ -1,0 +1,13 @@
+flask
+flask-cors
+pandas
+numpy
+ccxt
+ta
+scikit-learn
+matplotlib
+scipy
+requests
+tqdm
+websocket-client
+mplfinance
