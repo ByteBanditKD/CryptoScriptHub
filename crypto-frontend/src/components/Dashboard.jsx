@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   TrendingUp,
   Scanner,
-  PredictiveAnalytics,
+  Analytics,
   Timeline,
   PlayArrow,
 } from '@mui/icons-material';
@@ -50,7 +50,7 @@ const Dashboard = () => {
       case 'scanners':
         return <Scanner />;
       case 'price-prediction':
-        return <PredictiveAnalytics />;
+        return <Analytics />;
       case 'trend-analysis':
         return <Timeline />;
       default:
